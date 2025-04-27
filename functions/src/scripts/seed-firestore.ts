@@ -1,28 +1,32 @@
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp } from 'firebase-admin/app';
+import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
 import { type Game } from '../types';
 
 // Initialize Firebase Admin
-initializeApp({
+admin.initializeApp({
   projectId: 'demo-project',
 });
 
-const db = getFirestore();
+const db = admin.firestore();
 
 /**
  * Seed Firestore with game data from games.json
  */
 async function seedFirestore(): Promise<void> {
   try {
-    // Read the games.json file
-    const gamesJsonPath = path.resolve(__dirname, '../../../games.json');
+    const projectRoot = path.resolve(__dirname, '..', '..', '..');
+    const gamesJsonPath = path.join(projectRoot, 'games.json');
+    
+    console.log(`Reading games data from: ${gamesJsonPath}`);
+    
+    // Read and parse the games.json file
     const gamesData = fs.readFileSync(gamesJsonPath, 'utf8');
     const games = JSON.parse(gamesData) as Game[];
     
     console.log(`Found ${games.length} games in games.json`);
     
+    // Create a batch for efficient writing
     const batch = db.batch();
     const gamesCollection = db.collection('games');
     
@@ -35,17 +39,19 @@ async function seedFirestore(): Promise<void> {
     // Commit the batch
     await batch.commit();
     console.log('Successfully seeded Firestore with games data!');
-  } catch (error) {
-    console.error('Error seeding Firestore:', error);
+  } catch (error: unknown) {
+    console.error('Error seeding Firestore:', error instanceof Error ? error.message : error);
     process.exit(1);
   }
 }
 
 // Execute the seed function
-seedFirestore().then(() => {
-  console.log('Seed completed successfully');
-  process.exit(0);
-}).catch((error) => {
-  console.error('Seed failed:', error);
-  process.exit(1);
-}); 
+seedFirestore()
+  .then(() => {
+    console.log('Seed completed successfully');
+    process.exit(0);
+  })
+  .catch((error: unknown) => {
+    console.error('Seed failed:', error instanceof Error ? error.message : error);
+    process.exit(1);
+  }); 
