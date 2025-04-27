@@ -9,7 +9,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "seed": "npm run build && node lib/scripts/seed-firestore.js"
+    "seed": "node scripts/seed-firestore.js"
   },
   "main": "lib/index.js",
   "dependencies": {
