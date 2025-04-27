@@ -2,6 +2,7 @@ import express, { type Express, type NextFunction, type Response, type Request }
 import morgan from 'morgan';
 import router from './routes/index.js';
 import { HttpError } from './classes/HttpError.js';
+import { type ErrorResponse } from './types/index.js';
 
 export const app: Express = express();
 
@@ -10,23 +11,43 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use('/', router);
-app.use((_req, res, next) => {
+
+// 404 handler - path not found
+app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new HttpError('Path not found', 404));
 });
-app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+
+// Global error handler
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Received error:', err);
-  if (err instanceof Error) {
-    const statusCode = err instanceof HttpError ? err.statusCode : 500;
-    res.status(statusCode).json({
-      error: err.message,
-    });
-  } else if (typeof err === 'string') {
-    res.status(500).json({
-      error: err,
-    });
-  } else {
-    res.status(500).json({
-      error: 'Internal server error',
-    });
+  
+  // Handle known HttpError
+  if (err instanceof HttpError) {
+    return res.status(err.statusCode).json(err.toResponse());
   }
+  
+  // Handle standard Error objects
+  if (err instanceof Error) {
+    const errorResponse: ErrorResponse = {
+      error: err.message || 'Internal server error',
+      statusCode: 500
+    };
+    return res.status(500).json(errorResponse);
+  } 
+  
+  // Handle string errors
+  if (typeof err === 'string') {
+    const errorResponse: ErrorResponse = {
+      error: err,
+      statusCode: 500
+    };
+    return res.status(500).json(errorResponse);
+  }
+  
+  // Handle unknown error types
+  const errorResponse: ErrorResponse = {
+    error: 'Internal server error',
+    statusCode: 500
+  };
+  return res.status(500).json(errorResponse);
 });
