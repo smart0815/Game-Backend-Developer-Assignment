@@ -1,0 +1,15 @@
+{
+  "name": "game-backend-developer-assignment",
+  "version": "1.0.0",
+  "description": "Game Backend Developer Assignment",
+  "scripts": {
+    "seed": "node seed-firestore.js",
+    "start:emulator": "firebase emulators:start",
+    "start:admin": "cd admin && npm run dev",
+    "setup": "cd functions && npm install && cd ../admin && npm install"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
