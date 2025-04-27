@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: game-backend-emulator
+    ports:
+      # Firebase UI
+      - "4000:4000"
+      # Auth
+      - "9099:9099"
+      # Functions
+      - "5004:5004"
+      # Firestore
+      - "8080:8080"
+      # Emulator Suite UI
+      - "4400:4400"
+      # Pub/Sub
+      - "8085:8085"
+      # UI Development Server
+      - "5173:5173"
+    volumes:
+      - ./data:/app/data
+      - ./firebase.json:/app/firebase.json
+      - ./firestore.rules:/app/firestore.rules
+      - ./firestore.indexes.json:/app/firestore.indexes.json
+      - ./games.json:/app/games.json
+    environment:
+      - HOST=0.0.0.0
+    command: bash -c "sleep infinity" 
