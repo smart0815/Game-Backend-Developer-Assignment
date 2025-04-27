@@ -7,7 +7,12 @@
     "start:emulator": "firebase emulators:start",
     "start:admin": "cd admin && npm run dev",
     "setup": "cd functions && npm install && cd ../admin && npm install",
-    "start": "node run-all.js"
+    "buildImage": "docker build -t game-backend-emulator .",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "docker:seed": "docker exec game-backend-emulator node functions/scripts/seed-firestore.js",
+    "docker:wait-and-seed": "node docker-seed.js"
   },
   "private": true,
   "engines": {
