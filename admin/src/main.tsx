@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Layout, Table } from 'antd';
+import { type Game, type GameTableItem } from './types';
 
 const root = document.getElementById('root');
 if (!root) {
@@ -10,7 +11,7 @@ if (!root) {
 const { Header, Content } = Layout;
 
 import data from '../../games.json';
-const dataSource = data.map((item) => ({ ...item, key: item.id }));
+const dataSource: GameTableItem[] = (data as Game[]).map((item) => ({ ...item, key: item.id }));
 
 const tableColumns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
